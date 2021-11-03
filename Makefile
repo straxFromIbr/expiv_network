@@ -14,7 +14,6 @@ report:
 	@echo > $(REPORT_MD)
 	for mdf in (ls $(MDBIN)/*.md | sort) ; \
 		cat $$mdf | $(PATH_CONV) >> $(REPORT_MD); \
-		echo -e '\n\n---\n\n' >> $(REPORT_MD); \
 	end
 
 html: report
