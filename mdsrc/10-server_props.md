@@ -25,22 +25,73 @@
 
 ### DHCPサーバの設定
 
-`/etc/dhcpd.conf`ファイルに、
-- DHCPサーバを置くネットワーク
-- 接続するWindowsPCのMACアドレスとそれらに割り当てるプライベートIPアドレス
+`/etc/dhcpd.conf`ファイルに次のように記述した。
 
-などを記述した。
+```
+ddns-update-style ad-hoc;
+option domain-name "mahjongnet";
+option domain-name 192.168.1.1;
+
+subnet 192.168.1.0 netmask 255.255.255.0 {
+    option broadcast-address 192.168.1.255;
+    option subnet-mask 255.255.255.0;
+}
+
+host D-0152 {
+    hardware ethernet 00:26:18:4E:F0:BD;
+    fixed-address 192.168.1.5;
+}
+
+host D-0148{
+    hardware ethernet 00:26:18:4E:F0:B3;
+    fixed-address 192.168.1.6;
+}
+```
 
 また、割り当てたプライベートIPアドレスを記憶しておくためのデータベースファイルを
 `/var/db/dhcpd.leases`に作成した。
 
-加えて`/etc/rc.conf`中で起動時にDHCPdを起動するように設定した。
+加えて`/etc/rc.conf`中でOS起動時にDHCPdを起動するように、
+`dhcpd=YES`を追記した。
 
-最後に、`sousdhcp`によりLANに接続した2台のWindowsPCに上記で設定したIPアドレスが
+
+最後に、`sousdhcp`によりLANに接続した2台のWindowsPC(`D-152`,`D-148`)に上記で設定したIPアドレスが
 割り当てられていることを確認した。
 
 
 ### SMTPサーバの設定
+`/etc/postfix/main.cf`ファイルに次を追記した。
+
+```
+myhostname = wanssmtp.mahjongnet
+mydomain = mahjongnet
+myorigin = $mydomain
+inet_interfaces = all
+mydestination = $myhostname, localhost.$mydomain, $mydomain
+mynetworks = 192.168.1.0/24, 127.0.0.0/8
+alias_maps = hash:/etc/mail/aliases
+mail_spool_directory = /var/mail
+```
+
+また`/etc/postfix/master.cf`に次の行を追加した。
+
+```
+smtp    inet    n   -   n   -   -   smtpd
+```
+
+加えてOS起動時にpostfixが起動するように、`/etc/rc.conf`に次の行を追記した。
+
+```
+sendmail=NO
+postfix=YES
+```
+
+最後にtelnetで自身の25番ポートに接続し、`wanssmtp`の一般ユーザーに向けてメールを
+送信し、受信できていることを確認した。
+
+
+
+
 
 
 

@@ -1,5 +1,5 @@
 # Installation and Setup for Internet Servers 
-    － Server Constructions on UNIX Operating System －
+Server Constructions on UNIX Operating System 
 
 ---
 
